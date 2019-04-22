@@ -31,7 +31,11 @@ echo -e "\033[32mRed Hat Registration - Start\033[0m"
     fi
     echo -e "\033[32mSet Server Hostname - Stop\033[0m"
     # Register Red Hat Server - Start
-    sudo subscription-manager register --username $rhUser --password $rhPass --auto-attach
+    
+    # Default was auto-attach - for my use I don't want this
+    # sudo subscription-manager register --username $rhUser --password $rhPass --auto-attach
+    sudo subscription-manager register --username $rhUser --password $rhPass
+    
     clear
     sudo subscription-manager refresh
     clear
