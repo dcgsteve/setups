@@ -1,7 +1,7 @@
 # Aliases
 alias dc='docker-compose'
-alias dlogs='docker logs $1 -f --tail 50'
-alias dvol='docker volume ls -q'
+alias dl='docker logs $1 -f --tail 50'
+alias dv='docker volume ls -q'
 
 # Functions
 dbash() { docker exec -it $1 bash; }
