@@ -19,7 +19,7 @@ sudo cat  > /etc/systemd/system/convoy.service <<EOL
 Description=Convoy Daemon
 Requires=docker.service
 [Service]
-ExecStart=/usr/sbin/convoy daemon --drivers vfs --driver-opts vfs.path=/mnt/convoy --create-on-docker-mount
+ExecStart=/usr/sbin/convoy daemon --drivers vfs --driver-opts vfs.path=/mnt/convoy/docker --create-on-docker-mount
 [Install]
 WantedBy=multi-user.target
 EOL
