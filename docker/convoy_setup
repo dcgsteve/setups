@@ -1,0 +1,31 @@
+CONVOY_VERSION=v0.5.2
+
+cd /tmp
+
+echo "Downloading convoy ..."
+wget -q https://github.com/rancher/convoy/releases/download/$CONVOY_VERSION/convoy.tar.gz -O convoy.tar.gz
+
+echo "Installing convoy ..."
+tar xf convoy.tar.gz
+cp -v convoy/convoy convoy/convoy-pdata_tools /usr/sbin/
+mkdir -vp /etc/docker/plugins/
+echo "unix:///var/run/convoy/convoy.sock" > /etc/docker/plugins/convoy.spec
+rm -r convoy.tar.gz convoy
+
+echo "Installing convoy service..."
+sudo mkdir -p /mnt/convoy
+sudo cat  > /etc/systemd/system/convoy.service <<EOL
+[Unit]
+Description=Convoy Daemon
+Requires=docker.service
+[Service]
+ExecStart=/usr/sbin/convoy daemon --drivers vfs --driver-opts vfs.path=/mnt/convoy --create-on-docker-mount
+[Install]
+WantedBy=multi-user.target
+EOL
+
+systemctl daemon-reload
+systemctl enable convoy
+systemctl start convoy
+
+echo "Convoy daemon installed & running"
