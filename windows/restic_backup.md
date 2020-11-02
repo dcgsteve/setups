@@ -1,0 +1,3 @@
+# restic_backup
+
+This works on Windows 10 (and potentially earlier Windows 0 but not tested). The only additional requirement is for a "tee" utility to be in the path able to run, which allows output to both the screen *and* the redirection file at the same time (I like to be able to see stuff on the screen as well as having it output to a log file). If you don't want to download a tee utility and aren't bothered about losing the screen output then just remove the `| tee -a %LOGFILE%` statements and replace with `>> %LOGFILE%` instead.
