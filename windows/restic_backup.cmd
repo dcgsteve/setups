@@ -61,7 +61,6 @@ if "%id%" EQU "1" call :bk_daily
 if "%id%" EQU "2" call :bk_media
 if "%id%" EQU "3" call :bk_vid
 if "%id%" EQU "5" call :bk_vmware
-if "%id%" EQU "8" call :bk_test
 
 if "%id%" EQU "9" call :bk_all
 
@@ -82,12 +81,8 @@ call :bk_vid
 call :bk_vmware
 exit /b
 
-:bk_test
-echo PRETEND BACKUP! 2>&1 | tee %LOGFILE%
-exit /b
-
 :bk_daily
-echo Backing up Daily ...
+echo Backing up Daily ... | tee -a %LOGFILE%
 taskkill /IM Mailbird.exe
 call :go "C:\Users\Steve\Documents"
 call :go "C:\Users\Steve\Desktop"
@@ -100,7 +95,7 @@ call :go "C:\Users\steve\.ssh"
 exit /b
 
 :bk_media
-echo Backing up media ...
+echo Backing up media ... | tee -a %LOGFILE%
 call :go "D:\Media\Photos"
 call :go "D:\Media\Photos - ORIGINALS"
 call :go "D:\Media\Video Creation"
@@ -108,13 +103,13 @@ call :go "D:\Media\Videos"
 exit /b
 
 :bk_vid
-echo Backing up Video bits  ...
+echo Backing up Video bits  ... | tee -a %LOGFILE%
 call :go "C:\Media"
 call :go "C:\Users\steve\AppData\Roaming\obs-studio"
 exit /b
 
 :bk_vmware
-echo Backing up VMWare VMs ...
+echo Backing up VMWare Workstation VMs ... | tee -a %LOGFILE%
 call :go "C:\VM\Atos"
 call :go "C:\VM\eos"
 call :go "C:\VM\Shared"
@@ -124,20 +119,20 @@ rem *****************************************************
 rem Maintenance jobs
 rem *****************************************************
 :bk_clean
-echo Cleaning cache ...
-restic -r %REPO% cache --cleanup 2>&1 | tee %LOGFILE%
+echo Cleaning cache ... | tee -a %LOGFILE%
+restic -r %RESTIC_REPO% cache --cleanup 2>&1 | tee -a %LOGFILE%
 exit /b
 
 :repo_check
-echo Checking repo ...
-restic -r %REPO% check 2>&1 | tee %LOGFILE%
+echo Checking repo ... | tee -a %LOGFILE%
+restic -r %RESTIC_REPO% check 2>&1 | tee -a %LOGFILE%
 exit /b
 
 rem *****************************************************
 rem Actual backup job
 rem *****************************************************
 :go
-restic -r %REPO% backup %1 2>&1 | tee %LOGFILE%
+restic -r %RESTIC_REPO% backup %1 2>&1 | tee -a %LOGFILE%
 if errorlevel 1 goto broken
 exit /b
 
@@ -145,6 +140,7 @@ rem *****************************************************
 rem Clean up logs
 rem *****************************************************
 :cleanup
+echo Cleaning log files ... | tee -a %LOGFILE%
 for %%X in (log) do (
   set "skip=1"
   for /f "skip=%BK_LOG_MIN% delims=" %%F in ('dir /b /a-d /o-d /tw *.%%X') do (
@@ -158,7 +154,7 @@ rem *****************************************************
 rem Alert if something failed and end
 rem *****************************************************
 :broken
-echo.
+echo Something went wrong - raising alert ... | tee -a %LOGFILE%
 curl -s -X POST --data-urlencode "chat_id=%TG_CHATID%" --data-urlencode "text=Backup failed on DEV - check log file %LOGFILE%" "https://api.telegram.org/bot%TG_BOT%/sendMessage"
 echo.
 goto end
